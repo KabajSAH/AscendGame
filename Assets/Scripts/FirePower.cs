@@ -30,7 +30,7 @@ public class FirePower : MonoBehaviour
 
         if (_player.health < Player.MaxHealth)
         {
-            _player.health += 0.05f * Time.deltaTime;
+            _player.health += Time.deltaTime;
         }
         else
         {
