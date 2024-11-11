@@ -15,8 +15,8 @@ public class EarthPower : MonoBehaviour
     public const int MaxPassive = 20;
     private float _timeTillRegen;
     private const int Regen = 2;
-    private float _timeTillCooldown;
-    private const int Cooldown = 5;
+    public float timeTillCooldown;
+    public const int Cooldown = 5;
     private float _previousHp;
     private InputAction _shieldAction;
     [SerializeField] private GameObject objectShield;
@@ -27,7 +27,7 @@ public class EarthPower : MonoBehaviour
     {
         _shield = MaxShield;
         passiveShield = 10f;
-        _timeTillCooldown = Cooldown;
+        timeTillCooldown = Cooldown;
         _shieldAction = InputSystem.actions.FindAction("Shield");
         _player = GetComponent<Player>();
         _previousHp = _player.health;
@@ -50,11 +50,11 @@ public class EarthPower : MonoBehaviour
         
         // Effet actif du pouvoir
         var shieldValue = _shieldAction.ReadValue<float>();
-        if (Math.Abs(shieldValue - 1) < 0.001f && _timeTillCooldown >= Cooldown)
+        if (Math.Abs(shieldValue - 1) < 0.001f && timeTillCooldown >= Cooldown)
         {
             objectShield.SetActive(true);
             _shield = MaxShield;
-            _timeTillCooldown = Cooldown;
+            timeTillCooldown = Cooldown;
         }
 
         if (objectShield.activeSelf) _timeTillEnd += Time.deltaTime;
@@ -62,11 +62,11 @@ public class EarthPower : MonoBehaviour
         if (_shield <= 0 || _timeTillEnd >= TimeActive)
         {
             objectShield.SetActive(false);
-            _timeTillCooldown = 0f;
+            timeTillCooldown = 0f;
             _timeTillEnd = 0f;
         }
 
-        if (_timeTillCooldown < Cooldown) _timeTillCooldown += Time.deltaTime;
+        if (timeTillCooldown < Cooldown) timeTillCooldown += Time.deltaTime;
         
     }
 }
