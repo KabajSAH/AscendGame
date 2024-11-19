@@ -10,12 +10,13 @@ public class Player : MonoBehaviour
 {
     private InputAction _moveAction;
     private InputAction _jumpAction;
-    private CharacterController _controller;
-    [SerializeField] private float jumpStrength = 5;
-    [SerializeField] private float speed = 5;
+    private Rigidbody _rigidbody;
+    [SerializeField] private float jumpStrength = 20;
+    [SerializeField] private float speed = 20;
+    [SerializeField] private float rotationSpeed = 180;
     public const int MaxHealth = 100;
     public float health;
-
+    
     private bool _haveAir;
     
     private bool _haveFire;
@@ -32,13 +33,16 @@ public class Player : MonoBehaviour
 
     private WaterPowerTODO _waterPower;
     
+    private Vector3 _gravityEffect; // Stocke l'effet de la gravité
+    private bool _isGrounded; 
+    
     // Start is called before the first frame update
     private void Start()
     {
         _moveAction = InputSystem.actions.FindAction("Move");
         _jumpAction = InputSystem.actions.FindAction("Jump");
         
-        _controller = GetComponent<CharacterController>();
+        _rigidbody = GetComponent<Rigidbody>();
         _airPower = GetComponent<AirPowerTODO>();
         _airPower.enabled = false;
         
@@ -50,19 +54,33 @@ public class Player : MonoBehaviour
         
         _waterPower = GetComponent<WaterPowerTODO>();
         _waterPower.enabled = false;
-        health = 75f;
+        
+        health = 100f;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        var moveValue = new Vector3(_moveAction.ReadValue<Vector2>().x,0 ,_moveAction.ReadValue<Vector2>().y);
-        _controller.Move(moveValue * (speed * Time.deltaTime));
+        // Détecter si le personnage est au sol
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
         
-        var jumpValue = _jumpAction.ReadValue<float>();
-        if ( Math.Abs(jumpValue - 1) < 0.001f ) _controller.Move(Vector3.up * (jumpStrength * Time.deltaTime));
+        var moveInput = _moveAction.ReadValue<Vector2>(); // Par défaut, W/S ou flèches haut/bas
+        var moveDirection = transform.forward * moveInput.y; // Déplace le joueur sur l'axe Z (avant/arrière)
         
-        if (Input.GetKey(KeyCode.L)) _haveFire = true;
+        // Mise à jour de la vélocité horizontale sans toucher à la composante verticale
+        var horizontalVelocity = new Vector3(moveDirection.x * speed, _rigidbody.velocity.y, moveDirection.z * speed);
+        _rigidbody.velocity = horizontalVelocity; // Applique la vélocité horizontale sans affecter la composante verticale
+        
+        // Déplacement de la caméra avec A/D (gauche/droite)
+        transform.Rotate(0, moveInput.x * rotationSpeed * Time.deltaTime, 0);
+        
+        // Saut
+        if (_isGrounded && _jumpAction.ReadValue<float>() > 0.5f)
+        {
+            var velocity = _rigidbody.velocity;
+            velocity.y = jumpStrength; // Définit une vitesse verticale constante
+            _rigidbody.velocity = velocity;
+        }
 
         if (Input.GetKey(KeyCode.G)) _haveEarth = true;
         
@@ -87,6 +105,12 @@ public class Player : MonoBehaviour
         if (other.gameObject.TryGetComponent<AirBracelet>(out _))
         {
             _haveAir = true;
+            Destroy(other.gameObject);
+        }
+
+        if (other.gameObject.TryGetComponent<FireNecklace>(out _))
+        {
+            _haveFire = true;
             Destroy(other.gameObject);
         }
         if (other.gameObject.TryGetComponent<DeathPlane>(out _)) Death();

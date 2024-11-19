@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,14 +11,18 @@ public class Flying : MonoBehaviour
 
     private float _timeToWait;
 
+    [SerializeField] private float timeToComplete;
     [SerializeField] private float maxWaiting;
     
     private float _time;
     private bool _movingToTarget = true;
+
+    private Vector3 _displacement;
     // Start is called before the first frame update
     private void Start()
     {
         gameObject.transform.position = startingPos;
+        _displacement = Vector3.zero;
         _time = 0f;
         _timeToWait = 0f;
     }
@@ -29,21 +34,24 @@ public class Flying : MonoBehaviour
             || Vector3.Distance(transform.position, finishPos) < 0.1f)
         {
             _timeToWait += Time.deltaTime;
+            _displacement = Vector3.zero;
         }
-
+        
         if (_timeToWait >= maxWaiting)
         {
             if (_movingToTarget)
             {
+                _displacement =( Vector3.Lerp(startingPos, finishPos, _time) - transform.position) * 5f;
                 transform.position = Vector3.Lerp(startingPos, finishPos, _time);
-                _time += Time.deltaTime;
+                _time += Time.deltaTime / timeToComplete;
             }
             else
             {
+                _displacement = (Vector3.Lerp(finishPos,startingPos, _time) - transform.position)*5f;
                 transform.position = Vector3.Lerp( finishPos, startingPos, _time);
-                _time += Time.deltaTime;
+                _time += Time.deltaTime / timeToComplete;
             }
-
+            
             _timeToWait = maxWaiting;
         }
 
@@ -51,6 +59,16 @@ public class Flying : MonoBehaviour
         _movingToTarget = !_movingToTarget;
         _timeToWait = 0f;
         _time = 0;
-
+        
     }
+
+    private void OnCollisionStay(Collision other)
+    {
+        if (other.gameObject.TryGetComponent<Player>(out var player))
+        {
+            Debug.Log(_displacement);
+            player.transform.position += _displacement;
+        }
+    }
+    
 }
