@@ -19,7 +19,6 @@ public class Bullet : MonoBehaviour
     private void OnEnable()
     {
         _posInit = transform.position;
-        Debug.Log(_posInit);
     }
 
     // Update is called once per frame
@@ -42,6 +41,6 @@ public class Bullet : MonoBehaviour
 
     private void OnDestroy()
     {
-        Debug.Log("Destroyed");
+        //Debug.Log("Destroyed");
     }
 }

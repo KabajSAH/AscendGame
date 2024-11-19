@@ -21,6 +21,6 @@ public class EarthBar : MonoBehaviour
         {
             shieldBar.fillAmount = earth.timeTillCooldown / EarthPower.Cooldown;
             shieldText.enabled = earth.enabled;
-            shieldText.text = earth.timeTillCooldown.ToString("F1") + "/" + EarthPower.Cooldown;
+            shieldText.text = (EarthPower.Cooldown - earth.timeTillCooldown).ToString("F1");
         }
 }

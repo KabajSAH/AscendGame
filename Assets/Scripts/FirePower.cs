@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class FirePower : MonoBehaviour
 {
-    private float _timeSinceShoot = 0f;
-    private const float MaxBeforeAttack = 1f;
+    public float timeSinceShoot = 0f;
+    public const float MaxBeforeAttack = 1f;
     private InputAction _attackAction;
     [SerializeField] private GameObject bullet;
 
@@ -23,7 +24,7 @@ public class FirePower : MonoBehaviour
     private void Update()
     {
         var attackValue = _attackAction.ReadValue<float>();
-        if ( Math.Abs(attackValue - 1) < 0.001f && _timeSinceShoot > MaxBeforeAttack )
+        if ( Math.Abs(attackValue - 1) < 0.001f && timeSinceShoot >= MaxBeforeAttack )
         {
             Shoot();
         }
@@ -36,7 +37,7 @@ public class FirePower : MonoBehaviour
         {
             _player.health = Player.MaxHealth;
         }
-        _timeSinceShoot += Time.deltaTime;
+        timeSinceShoot += Time.deltaTime;
 
     }
     
@@ -45,6 +46,6 @@ public class FirePower : MonoBehaviour
         var transform1 = transform;
         var newGameObject = Instantiate(bullet, transform1.position + transform1.forward, bullet.transform.rotation);
         newGameObject.SetActive(true);
-        _timeSinceShoot = 0f;
+        timeSinceShoot = 0f;
     }
 }

@@ -26,7 +26,7 @@ public class EarthPower : MonoBehaviour
     private void Start()
     {
         _shield = MaxShield;
-        passiveShield = 10f;
+        passiveShield = 0f;
         timeTillCooldown = Cooldown;
         _shieldAction = InputSystem.actions.FindAction("Shield");
         _player = GetComponent<Player>();

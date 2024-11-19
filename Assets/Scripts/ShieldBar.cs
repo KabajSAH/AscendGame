@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ShieldBar : MonoBehaviour
 {
-    [SerializeField] private EarthPower _earth;
+    [SerializeField] private EarthPower earth;
 
     [SerializeField] private Image shieldBar;
 
@@ -20,8 +21,8 @@ public class ShieldBar : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        shieldBar.fillAmount = _earth.passiveShield / EarthPower.MaxPassive;
-        shieldText.enabled = _earth.enabled;
-        shieldText.text = _earth.passiveShield.ToString("F1") + "/" + EarthPower.MaxPassive;
+        shieldBar.fillAmount = earth.passiveShield / EarthPower.MaxPassive;
+        shieldText.enabled = earth.enabled;
+        shieldText.text = earth.passiveShield.ToString("F1") + "/" + EarthPower.MaxPassive;
     }
 }
