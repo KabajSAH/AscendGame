@@ -41,13 +41,13 @@ public class Flying : MonoBehaviour
         {
             if (_movingToTarget)
             {
-                _displacement =( Vector3.Lerp(startingPos, finishPos, _time) - transform.position) * 5f;
+                _displacement =( Vector3.Lerp(startingPos, finishPos, _time) - transform.position) ;
                 transform.position = Vector3.Lerp(startingPos, finishPos, _time);
                 _time += Time.deltaTime / timeToComplete;
             }
             else
             {
-                _displacement = (Vector3.Lerp(finishPos,startingPos, _time) - transform.position)*5f;
+                _displacement = (Vector3.Lerp(finishPos,startingPos, _time) - transform.position);
                 transform.position = Vector3.Lerp( finishPos, startingPos, _time);
                 _time += Time.deltaTime / timeToComplete;
             }
