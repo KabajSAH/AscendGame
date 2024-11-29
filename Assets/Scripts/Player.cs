@@ -46,10 +46,9 @@ public class Player : MonoBehaviour
     
     private static readonly int Left = Animator.StringToHash("IsGoingLeft");
     private static readonly int Right = Animator.StringToHash("IsGoingRight");
-    private static readonly int Jump = Animator.StringToHash("Jump");
     private static readonly int IsStanding = Animator.StringToHash("isStanding");
     private static readonly int Death1 = Animator.StringToHash("Death");
-    private static readonly int FallSpeed = Animator.StringToHash("FallSpeed");
+    private static readonly int Hit = Animator.StringToHash("Hit");
 
     // Start is called before the first frame update
     private void Start()
@@ -80,6 +79,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         if (Input.GetKey(KeyCode.G)) _haveEarth = true;
+        if (Input.GetKey(KeyCode.F)) _haveFire = true;
         
         if (_haveAir && !_airPower.enabled) _airPower.enabled = true;
 
@@ -93,26 +93,23 @@ public class Player : MonoBehaviour
 
         if (_haveWater && !_waterPower.enabled) _waterPower.enabled = true;
         
-        if (health <= 0) StartCoroutine(Death());
+        if (health <= 0) Death();
     }
 
     private void FixedUpdate()
     {
-        _isGrounded = Physics.Raycast(transform.position, Vector3.down, 5f);
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
         _animator.SetBool(IsStanding, _isGrounded);
         
         // Déplacement avant/arrière
         var moveInput = _moveAction.ReadValue<Vector2>();
         var moveDirection = transform.forward * moveInput.y;
+        var targetPosition = transform.position + moveDirection * (speed * Time.fixedDeltaTime);
         
         _animator.SetBool(Forward, moveInput.y > 0.1);
         _animator.SetBool(Backward, moveInput.y < -0.1);
         
-        // Mise à jour de la vélocité
-        var horizontalVelocity = new Vector3(moveDirection.x * speed, _rigidbody.velocity.y, moveDirection.z * speed);
-        _rigidbody.velocity = horizontalVelocity;
-        
-        _animator.SetFloat(FallSpeed, horizontalVelocity.y);
+        _rigidbody.MovePosition(targetPosition);
         
         // Rotation de la caméra avec A/D (gauche/droite)
         transform.Rotate(0, moveInput.x * rotationSpeed * Time.fixedDeltaTime, 0);
@@ -121,19 +118,34 @@ public class Player : MonoBehaviour
 
         // Saut
         if (!_isGrounded || !(_jumpAction.ReadValue<float>() > 0.5f)) return;
-        _animator.SetTrigger(Jump);
         var velocity = _rigidbody.velocity;
         velocity.y = jumpStrength;
         _rigidbody.velocity = velocity;
     }
     
-    private IEnumerator Death()
+    private void Death()
     {
         _animator.SetTrigger(Death1);
-        yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene("Level 1");
+        StartCoroutine(global::Death.OnDeath());
     }
 
+    public void OnHit()
+    {
+        _animator.SetTrigger(Hit);
+        if (_haveEarth && _earthPower.passiveShield > 0f )
+        {
+            _earthPower.passiveShield -= 10f;
+            if (!(_earthPower.passiveShield < 0f)) return;
+            var supplement = _earthPower.passiveShield;
+            _earthPower.passiveShield = 0f;
+            health += supplement;
+        }
+        else
+        {
+            health -= 10f;
+        }
+    }
+    
     private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.TryGetComponent<AirBracelet>(out _))
@@ -147,6 +159,6 @@ public class Player : MonoBehaviour
             _haveFire = true;
             Destroy(other.gameObject);
         }
-        if (other.gameObject.TryGetComponent<DeathPlane>(out _)) StartCoroutine(Death());
+        if (other.gameObject.TryGetComponent<DeathPlane>(out _)) Death();
     }
 }

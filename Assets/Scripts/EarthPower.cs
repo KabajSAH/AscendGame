@@ -17,11 +17,15 @@ public class EarthPower : MonoBehaviour
     private const int Regen = 2;
     public float timeTillCooldown;
     public const int Cooldown = 5;
-    private float _previousHp;
+    private float _previousShield;
     private InputAction _shieldAction;
     [SerializeField] private GameObject objectShield;
-    private Player _player;
-    
+    private Animator _animator;
+    private float _lastValue; // Stocke la dernière valeur
+    private float _timeSinceLastDecrease; // Temps écoulé depuis la dernière réduction
+    private static readonly int Earth = Animator.StringToHash("Earth");
+
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -29,30 +33,34 @@ public class EarthPower : MonoBehaviour
         passiveShield = 0f;
         timeTillCooldown = Cooldown;
         _shieldAction = InputSystem.actions.FindAction("Shield");
-        _player = GetComponent<Player>();
-        _previousHp = _player.health;
+        _previousShield = passiveShield;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
     private void Update()
     {
+        
         // Effet passif du pouvoir
-        if (_player.health < _previousHp) _timeTillRegen = 0f;
-        else _timeTillRegen += Time.deltaTime;
-        
-        if (passiveShield < MaxPassive && _timeTillRegen >= Regen)
+        if (passiveShield < _previousShield) _timeTillRegen = 0f;
+        else
         {
-            passiveShield += 5f * Time.deltaTime;
-            _timeTillRegen = Regen;
+            _timeTillRegen += Time.deltaTime;
+            if (passiveShield < MaxPassive && _timeTillRegen >= Regen)
+            { 
+                passiveShield += 5f * Time.deltaTime; 
+                _timeTillRegen = Regen;
+            }
         }
-        _previousHp = _player.health;
-        if (passiveShield > MaxPassive) passiveShield = MaxPassive;
         
+        if (passiveShield > MaxPassive) passiveShield = MaxPassive;
+        _previousShield = passiveShield;
         // Effet actif du pouvoir
         var shieldValue = _shieldAction.ReadValue<float>();
         if (Math.Abs(shieldValue - 1) < 0.001f && timeTillCooldown >= Cooldown)
         {
             objectShield.SetActive(true);
+            _animator.SetBool(Earth, true);
             _shield = MaxShield;
             timeTillCooldown = Cooldown;
         }
@@ -62,6 +70,7 @@ public class EarthPower : MonoBehaviour
         if (_shield <= 0 || _timeTillEnd >= TimeActive)
         {
             objectShield.SetActive(false);
+            _animator.SetBool(Earth, false);
             timeTillCooldown = 0f;
             _timeTillEnd = 0f;
         }

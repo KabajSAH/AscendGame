@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    private readonly float _speed = 10f;
+    private const float Speed = 20f;
 
     private Vector3 _posInit;
 
-    private const float MaxDistance = 10f;
+    private const float MaxDistance = 20f;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,11 +22,11 @@ public class Bullet : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         var transform1 = transform;
         var position = transform1.position;
-        position += _speed * Time.deltaTime * transform1.forward;
+        position += Speed * Time.deltaTime * transform1.forward;
         transform1.position = position;
         if (Vector3.Distance(_posInit, position) >= MaxDistance)
         {
@@ -36,6 +36,10 @@ public class Bullet : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        if (other.gameObject.TryGetComponent(out Enemy enemy))
+        {
+            enemy.GetHit(10f);
+        }
         Destroy(gameObject);
     }
 

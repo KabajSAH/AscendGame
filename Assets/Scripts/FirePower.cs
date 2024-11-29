@@ -10,14 +10,19 @@ public class FirePower : MonoBehaviour
     public float timeSinceShoot = 0f;
     public const float MaxBeforeAttack = 1f;
     private InputAction _attackAction;
+    private Animator _animator;
     [SerializeField] private GameObject bullet;
 
     private Player _player;
+
+    private static readonly int Fire = Animator.StringToHash("Fire");
+
     // Start is called before the first frame update
     private void Start()
     {
         _attackAction = InputSystem.actions.FindAction("Attack");
         _player = GetComponent<Player>();
+        _animator = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -43,8 +48,9 @@ public class FirePower : MonoBehaviour
     
     private void Shoot()
     {
+        _animator.SetTrigger(Fire);
         var transform1 = transform;
-        var newGameObject = Instantiate(bullet, transform1.position + transform1.forward, bullet.transform.rotation);
+        var newGameObject = Instantiate(bullet, transform1.position + transform1.forward,transform1.rotation);
         newGameObject.SetActive(true);
         timeSinceShoot = 0f;
     }
