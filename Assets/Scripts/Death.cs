@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using PlayerControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,13 +9,14 @@ public class Death : MonoBehaviour
     public static IEnumerator OnDeath()
     {
         var p = FindAnyObjectByType<Player>();
+        var a = p.Animator.GetCurrentAnimatorStateInfo(2).length;
         var es = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
         p.enabled = false;
         foreach (var e in es)
         {
             e.enabled = false;
         }
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(a + 0.1f);
         SceneManager.LoadScene("Level 1");
     }
     

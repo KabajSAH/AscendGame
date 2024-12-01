@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace UselessScripts
+namespace PlayerControl
 {
-    public class DeathPlane : MonoBehaviour
+    public class WaterPowerTODO : MonoBehaviour
     {
         // Start is called before the first frame update
         void Start()

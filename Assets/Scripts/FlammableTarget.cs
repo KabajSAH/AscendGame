@@ -6,22 +6,19 @@ using UnityEngine;
 public class FlammableTarget : MonoBehaviour
 {
     [SerializeField] private GameObject bullet;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+    private GameObject _child;
+    // Start is called before the first frame update
+    private void Start()
     {
-        
+        _child = transform.GetChild(0).gameObject;
+        _child.SetActive(false);
     }
 
     private void OnCollisionEnter(Collision other)
     {
         if (!other.gameObject.TryGetComponent<Bullet>(out _)) return;
-        Debug.Log(other);
-        Destroy(gameObject);
+        _child.SetActive(true);
+        Destroy(gameObject, 1f);
     }
 }

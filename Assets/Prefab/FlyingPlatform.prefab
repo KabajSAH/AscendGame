@@ -120,5 +120,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingPos: {x: 10, y: 1, z: 10}
   finishPos: {x: 0, y: 3, z: 10}
+  timeToComplete: 0
   maxWaiting: 1
-  speed: 2
