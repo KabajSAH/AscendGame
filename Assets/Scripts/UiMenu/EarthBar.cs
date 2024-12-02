@@ -1,16 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using PlayerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EarthBar : MonoBehaviour
+namespace UiMenu
 {
-    [SerializeField] private EarthPower earth;
-    [SerializeField] private Image shieldBar;
+    public class EarthBar : MonoBehaviour
+    {
+        [SerializeField] private EarthPower earth;
+        [SerializeField] private Image shieldBar;
     
-    [SerializeField] private TextMeshProUGUI shieldText;
+        [SerializeField] private TextMeshProUGUI shieldText;
         // Start is called before the first frame update
         void Start()
         {
@@ -24,4 +24,5 @@ public class EarthBar : MonoBehaviour
             shieldText.enabled = earth.enabled;
             shieldText.text = (EarthPower.Cooldown - earth.timeTillCooldown).ToString("F1");
         }
+    }
 }

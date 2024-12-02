@@ -11,9 +11,9 @@ namespace UselessScripts
 
         [SerializeField] private GameObject obstacles;
         // Start is called before the first frame update
-        void Start()
+        private void Start()
         {
-            bool found = false;
+            var found = false;
 
             // Vérifier chaque enfant direct
             foreach (Transform child in transform)
@@ -57,15 +57,9 @@ namespace UselessScripts
         
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             obstacles.SetActive(true);
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        
         }
     }
 }

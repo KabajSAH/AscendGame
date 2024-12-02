@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UselessScripts
 {
-    public class AirBracelet : MonoBehaviour
+    public class EarthGloves : MonoBehaviour
     {
         private GameObject _canvas;
 

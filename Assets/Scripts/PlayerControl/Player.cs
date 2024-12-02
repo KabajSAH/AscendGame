@@ -1,4 +1,5 @@
 using System;
+using UiMenu;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UselessScripts;
@@ -29,11 +30,15 @@ namespace PlayerControl
 
         private AirPowerTodo _airPower;
     
+        [SerializeField] private GameObject bracelet;
+        
         private FirePower _firePower;
 
         [SerializeField] private GameObject necklace;
 
         private EarthPower _earthPower;
+        
+        [SerializeField] private GameObject gloves;
 
         private WaterPowerTODO _waterPower;
     
@@ -63,9 +68,11 @@ namespace PlayerControl
         
             _airPower = GetComponent<AirPowerTodo>();
             _airPower.enabled = false;
-        
+            bracelet.SetActive(false);
+            
             _earthPower = GetComponent<EarthPower>();
             _earthPower.enabled = false;
+            gloves.SetActive(false);
         
             _firePower = GetComponent<FirePower>();
             _firePower.enabled = false;
@@ -83,17 +90,24 @@ namespace PlayerControl
         private void Update()
         {
             if (Input.GetKey(KeyCode.G)) _haveEarth = true;
-            if (Input.GetKey(KeyCode.F)) _haveFire = true;
-        
-            if (_haveAir && !_airPower.enabled) _airPower.enabled = true;
+
+            if (_haveAir && !_airPower.enabled)
+            {
+                bracelet.SetActive(true);
+                _airPower.enabled = true;
+            }
 
             if (_haveFire && !_firePower.enabled)
             {
                 necklace.SetActive(true);
                 _firePower.enabled = true;
             }
-        
-            if (_haveEarth && !_earthPower.enabled) _earthPower.enabled = true;
+
+            if (_haveEarth && !_earthPower.enabled)
+            {
+                gloves.SetActive(true);
+                _earthPower.enabled = true;
+            }
 
             if (_haveWater && !_waterPower.enabled) _waterPower.enabled = true;
         
@@ -130,10 +144,8 @@ namespace PlayerControl
         private void Death()
         {
             Animator.SetTrigger(Death1);
-            StartCoroutine(global::Death.OnDeath());
+            StartCoroutine(Game.OnDeath());
         }
-
-    
 
         public void OnHit()
         {
@@ -154,16 +166,21 @@ namespace PlayerControl
     
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.TryGetComponent<AirBracelet>(out _) )
+            if (other.gameObject.TryGetComponent<AirBracelet>(out _) && _interact.ReadValue<float>()>0.5f )
             {
                 _haveAir = true;
-                Destroy(other.gameObject);
+                other.gameObject.SetActive(false);
             }
 
             if (other.gameObject.TryGetComponent<FireNecklace>(out _) && _interact.ReadValue<float>()>0.5f)
             {
                 _haveFire = true;
-                Destroy(other.gameObject);
+                other.gameObject.SetActive(false);
+            }
+            if (other.gameObject.TryGetComponent<EarthGloves>(out _) && _interact.ReadValue<float>()>0.5f)
+            {
+                _haveEarth = true;
+                other.gameObject.SetActive(false);
             }
             if (other.gameObject.TryGetComponent<DeathPlane>(out _)) Death();
         }
