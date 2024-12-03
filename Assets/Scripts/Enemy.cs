@@ -8,11 +8,11 @@ using Random = UnityEngine.Random;
 public class Enemy : MonoBehaviour
 {
     private Animator _animator;
-    [SerializeField] private const int MaxHealth = 30;
-    [SerializeField] private float health;
-    
+    private const int MaxHealth = 30;
+    private float _health;
+
     [Header("Zone de déplacement")]
-    [SerializeField] private Vector3 centerPoint; // Le centre de la sphère
+    private Vector3 _centerPoint; // Le centre de la sphère
     [SerializeField] private float patrolRadius = 10f; // Rayon de la zone de patrouille
     [SerializeField] private float detectionRadius = 5f; // Rayon de détection du joueur
 
@@ -29,17 +29,18 @@ public class Enemy : MonoBehaviour
     private float _attackTimer;
     private float _idleTimer;
     private Vector3 _lastKnownPlayerPosition;
-    private bool _isDying = false;
+    private bool _isDying;
 
     private enum EnemyState { Patrolling, Chasing, Attacking, Idling }
     private EnemyState _currentState = EnemyState.Idling;
     private static readonly int IsMovable = Animator.StringToHash("IsMovable");
-    private static readonly int Hited = Animator.StringToHash("Hited");
+    private static readonly int GotHit = Animator.StringToHash("Hited");
     private static readonly int Dying = Animator.StringToHash("Dying");
 
     private void Start()
     {
-        health = MaxHealth;
+        _centerPoint = transform.position;
+        _health = MaxHealth;
         _player = GameObject.FindGameObjectWithTag("Player").transform; // Assurez-vous que le joueur a le tag "Player"
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = patrolSpeed;
@@ -70,7 +71,7 @@ public class Enemy : MonoBehaviour
                     TransitionToState(EnemyState.Idling);
                 }
                 break;
-
+            
             case EnemyState.Chasing:
                 ChasePlayer();
                 if (!IsPlayerVisible())
@@ -100,15 +101,23 @@ public class Enemy : MonoBehaviour
 
     private void Patrol()
     {
-        if (!_agent.pathPending && Vector3.Distance(transform.position, _targetPosition) < 0.5f)
+        if ((!_agent.pathPending && Vector3.Distance(transform.position, _targetPosition) < 0.5f) || !IsPathReachable(_targetPosition))
         {
             SetNewPatrolPoint();
         }
     }
 
+    private bool IsPathReachable(Vector3 targetPosition)
+    {
+        NavMeshPath path = new NavMeshPath();
+        _agent.CalculatePath(targetPosition, path);
+        return path.status == NavMeshPathStatus.PathComplete;
+    }
+    
     private void ChasePlayer()
     {
-        _agent.SetDestination(_player.position);
+        _targetPosition = _player.position;
+        _agent.SetDestination(_targetPosition);
     }
 
     private void AttackPlayer()
@@ -117,7 +126,7 @@ public class Enemy : MonoBehaviour
         if (_player.TryGetComponent<Player>(out var pComponent))
         {
             _animator.SetTrigger(Random.value < 0.5f ? "Attacking1" : "Attacking2");
-            pComponent.OnHit();
+            pComponent.OnHit(10f);
         }
         _attackTimer = 0f;
         TransitionToState(EnemyState.Idling);
@@ -139,14 +148,14 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            TransitionToState(EnemyState.Patrolling);
+            TransitionToState(EnemyState.Chasing);
         }
     }
     
     private void SetNewPatrolPoint()
     {
         var randomDirection = Random.insideUnitSphere * patrolRadius;
-        randomDirection += centerPoint;
+        randomDirection += _centerPoint;
 
         if (!NavMesh.SamplePosition(randomDirection, out var navHit, patrolRadius, NavMesh.AllAreas)) return;
         _targetPosition = navHit.position;
@@ -193,8 +202,8 @@ public class Enemy : MonoBehaviour
 
     public void GetHit(float damage)
     {
-        health -= damage;
-        if (health <= 0)
+        _health -= damage;
+        if (_health <= 0)
         {
             _animator.SetTrigger(Dying);
             _isDying = true;
@@ -202,7 +211,11 @@ public class Enemy : MonoBehaviour
             StartCoroutine(HandleDeath());
 
         }
-        else _animator.SetTrigger(Hited);
+        else
+        {
+            _animator.SetTrigger(GotHit);
+            ChasePlayer();
+        }
     }
 
     private IEnumerator HandleDeath()
@@ -221,7 +234,7 @@ public class Enemy : MonoBehaviour
     {
         // Dessiner les rayons de la zone de patrouille et de détection
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(centerPoint, patrolRadius);
+        Gizmos.DrawWireSphere(_centerPoint, patrolRadius);
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);

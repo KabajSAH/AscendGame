@@ -19,7 +19,7 @@ namespace PlayerControl
         private const int Regen = 2;
     
         public float timeTillCooldown;
-        public const int Cooldown = 5;
+        public const int Cooldown = 10;
     
         private float _previousShield;
         private InputAction _shieldAction;

@@ -67,6 +67,7 @@ namespace UiMenu
             _pauseAction.performed -= OnPausePerformed;
             _pauseAction.canceled -= OnPauseCanceled;
             _pauseAction.Disable();
+            PauseGame();
         }
         
         private void OnPauseCanceled(InputAction.CallbackContext context)
@@ -99,7 +100,6 @@ namespace UiMenu
         private void PauseGame()
         {
             Time.timeScale = 0f; // Stoppe le temps de jeu.
-            // Optionnel : désactiver l'Input System ici si nécessaire.
             Cursor.lockState = CursorLockMode.None; // Libérer le curseur.
             Cursor.visible = true;
             var playerAction = InputSystem.actions.FindActionMap("Player");
@@ -113,7 +113,6 @@ namespace UiMenu
         private void ResumeGame()
         {
             Time.timeScale = 1f; // Reprend le temps de jeu.
-            // Optionnel : reactiver l'Input System ici si nécessaire.
             Cursor.lockState = CursorLockMode.Locked; // Re-verrouiller le curseur.
             Cursor.visible = false;
             var playerAction = InputSystem.actions.FindActionMap("Player");

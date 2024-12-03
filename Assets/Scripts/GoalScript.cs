@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using PlayerControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GoalScript : MonoBehaviour
 {
-    [SerializeField] private GameObject _win;
+    [SerializeField] private GameObject win;
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-     _win.SetActive(false);   
+     win.SetActive(false);   
     }
 
     // Update is called once per frame
@@ -22,15 +23,42 @@ public class GoalScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Player>(out _))
-        {
-            StartCoroutine(Winning());
-        }
+        if (!other.gameObject.TryGetComponent<Player>(out var p)) return;
+        StopAllAnimations(p.Animator);
+        p.enabled = false;
+        StartCoroutine(Winning());
     }
 
+    public void StopAllAnimations(Animator animator)
+    {
+        // Réinitialiser tous les paramètres
+        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        {
+            switch (parameter.type)
+            {
+                case AnimatorControllerParameterType.Bool:
+                    animator.SetBool(parameter.name, false);
+                    break;
+                case AnimatorControllerParameterType.Trigger:
+                    animator.ResetTrigger(parameter.name);
+                    break;
+                case AnimatorControllerParameterType.Float:
+                    animator.SetFloat(parameter.name, 0f);
+                    break;
+                case AnimatorControllerParameterType.Int:
+                    animator.SetInteger(parameter.name, 0);
+                    break;
+            }
+        }
+
+        // Passer à un état vide (si défini)
+        animator.Play("Idle");
+        
+    }
+    
     private IEnumerator Winning()
     {
-        _win.SetActive(true);
+        win.SetActive(true);
         yield return new WaitForSeconds(3f);
         SceneManager.LoadScene("MainMenu");
     }

@@ -416,12 +416,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a3cf2ffbc0d5734cbb1165677db38aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shield: {fileID: 7268046960253568512}
   jumpStrength: 8
   rotationSpeed: 270
   health: 100
   bracelet: {fileID: 3656421545100088800}
   necklace: {fileID: 2429385550530880752}
   gloves: {fileID: 4184081774741702135}
+  shoes: {fileID: 7008313938982608803}
 --- !u!114 &8383087944727131655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -574,6 +576,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4561406473548200586, guid: 60770bdb4dc667c45bea53db0339dc05, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: c6e6376d3a595b84882916caa1accdb3, type: 2}
+    - target: {fileID: 7093791603881671045, guid: 60770bdb4dc667c45bea53db0339dc05, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 695807841, guid: 60770bdb4dc667c45bea53db0339dc05, type: 3}
@@ -604,6 +614,11 @@ Transform:
 --- !u!1 &4184081774741702135 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4116401870129570769, guid: 60770bdb4dc667c45bea53db0339dc05, type: 3}
+  m_PrefabInstance: {fileID: 229891956761290278}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7008313938982608803 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7093791603881671045, guid: 60770bdb4dc667c45bea53db0339dc05, type: 3}
   m_PrefabInstance: {fileID: 229891956761290278}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &841804361092146331

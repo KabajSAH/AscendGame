@@ -80,10 +80,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08164b817944b6b49a15efcee5840ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 0
-  centerPoint: {x: 0, y: 0, z: 0}
-  patrolRadius: 10
-  detectionRadius: 5
+  patrolRadius: 20
+  detectionRadius: 10
   attackDistance: 2
   patrolSpeed: 3
   chaseSpeed: 5

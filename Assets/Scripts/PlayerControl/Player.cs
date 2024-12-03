@@ -13,7 +13,9 @@ namespace PlayerControl
         private InputAction _interact;
         private Rigidbody _rigidbody;
         private Camera _camera;
-    
+        
+        [SerializeField] private GameObject shield;
+        
         [SerializeField] private float jumpStrength = 20;
     
         [SerializeField] private float rotationSpeed = 360;
@@ -41,6 +43,8 @@ namespace PlayerControl
         [SerializeField] private GameObject gloves;
 
         private WaterPowerTODO _waterPower;
+        
+        [SerializeField] private GameObject shoes;
     
         private bool _isGrounded;
     
@@ -80,6 +84,7 @@ namespace PlayerControl
         
             _waterPower = GetComponent<WaterPowerTODO>();
             _waterPower.enabled = false;
+            shoes.SetActive(false);
         
             health = MaxHealth;
             _camera = Camera.current;
@@ -89,7 +94,8 @@ namespace PlayerControl
         // Update is called once per frame
         private void Update()
         {
-            if (Input.GetKey(KeyCode.G)) _haveEarth = true;
+            if (Input.GetKey(KeyCode.G)) _haveFire = true;
+            if (Input.GetKey(KeyCode.F)) _haveEarth = true;
 
             if (_haveAir && !_airPower.enabled)
             {
@@ -109,7 +115,11 @@ namespace PlayerControl
                 _earthPower.enabled = true;
             }
 
-            if (_haveWater && !_waterPower.enabled) _waterPower.enabled = true;
+            if (_haveWater && !_waterPower.enabled)
+            {
+                shoes.SetActive(true);
+                _waterPower.enabled = true;
+            }
         
             if (health <= 0) Death();
         }
@@ -147,12 +157,17 @@ namespace PlayerControl
             StartCoroutine(Game.OnDeath());
         }
 
-        public void OnHit()
+        public void OnHit(float damage)
         {
-            Animator.SetTrigger(Hit);
+            if (shield.activeSelf) return;
+            if (!IsAnimationPlaying("GetHit"))
+            {
+                Animator.SetTrigger(Hit);
+            }
+           
             if (_haveEarth && _earthPower.passiveShield > 0f )
             {
-                _earthPower.passiveShield -= 10f;
+                _earthPower.passiveShield -= damage;
                 if (!(_earthPower.passiveShield < 0f)) return;
                 var supplement = _earthPower.passiveShield;
                 _earthPower.passiveShield = 0f;
@@ -160,10 +175,16 @@ namespace PlayerControl
             }
             else
             {
-                health -= 10f;
+                health -= damage;
             }
         }
     
+        private bool IsAnimationPlaying(string animationName)
+        {
+            var currentState = Animator.GetCurrentAnimatorStateInfo(1); // 0 correspond à la première couche
+            return currentState.IsName(animationName) && currentState.normalizedTime < 1f;
+        }
+        
         private void OnTriggerStay(Collider other)
         {
             if (other.gameObject.TryGetComponent<AirBracelet>(out _) && _interact.ReadValue<float>()>0.5f )
@@ -177,9 +198,16 @@ namespace PlayerControl
                 _haveFire = true;
                 other.gameObject.SetActive(false);
             }
+            
             if (other.gameObject.TryGetComponent<EarthGloves>(out _) && _interact.ReadValue<float>()>0.5f)
             {
                 _haveEarth = true;
+                other.gameObject.SetActive(false);
+            }
+            
+            if (other.gameObject.TryGetComponent<WaterShoes>(out _) && _interact.ReadValue<float>()>0.5f )
+            {
+                _haveWater = true;
                 other.gameObject.SetActive(false);
             }
             if (other.gameObject.TryGetComponent<DeathPlane>(out _)) Death();
